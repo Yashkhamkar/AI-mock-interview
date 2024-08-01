@@ -96,7 +96,7 @@ function RecordAnswer({ mockQuestions, ActiveQuestion, interviewData }) {
       JsonfeedbackResp?.rating,
       user?.primaryEmailAddress?.emailAddress
     );
-    const resp = await fetch("http://localhost:5000/user/user-answer", {
+    const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/user-answer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

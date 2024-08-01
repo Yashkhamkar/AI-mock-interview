@@ -16,7 +16,7 @@ function InterviewList() {
   const getInterviews = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/mock-interviews?email=${user?.primaryEmailAddress?.emailAddress}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interviews?email=${user?.primaryEmailAddress?.emailAddress}`
       );
 
       if (!response.ok) {

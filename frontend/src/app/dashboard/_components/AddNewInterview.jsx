@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { chatSession } from "../../../../utils/gemeniAi";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
@@ -12,13 +13,13 @@ function AddNewInterview() {
   const [yearsOfExperience, setYearsOfExperience] = useState("");
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [upgradeMessage, setUpgradeMessage] = useState("");
+  const [jsonResponse, setJsonResponse] = useState({});
   const { user } = useUser();
   const router = useRouter();
 
   const checkUserStatus = async () => {
     const response = await fetch(
-      `http://localhost:5000/api/user-status?email=${user.primaryEmailAddress.emailAddress}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user-status?email=${user.primaryEmailAddress.emailAddress}`
     );
     const data = await response.json();
     return data;
@@ -32,7 +33,7 @@ function AddNewInterview() {
       userStatus.subscriptionStatus === "free" &&
       userStatus.interviewCount >= 3
     ) {
-      setUpgradeMessage("Please upgrade to premium to create new interview");
+      toast.error("Please upgrade to premium to create a new interview");
       setDialogOpen(false);
       return;
     }
@@ -51,19 +52,22 @@ function AddNewInterview() {
 
     if (MockResp) {
       try {
-        const resp = await fetch("http://localhost:5000/api/mock-interview", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jsonMockResp: MockResp,
-            jobPosition,
-            jobDescription,
-            jobExperience: yearsOfExperience,
-            createdBy: user.primaryEmailAddress?.emailAddress,
-          }),
-        });
+        const resp = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              jsonMockResp: MockResp,
+              jobPosition,
+              jobDescription,
+              jobExperience: yearsOfExperience,
+              createdBy: user.primaryEmailAddress?.emailAddress,
+            }),
+          }
+        );
         const data = await resp.json();
         router.push(`/dashboard/interview/${data.mockId}`);
       } catch (error) {
@@ -96,7 +100,6 @@ function AddNewInterview() {
             <Dialog.Description className="mt-2 text-sm text-gray-500">
               Add details about the job position, your skills, and experience
             </Dialog.Description>
-            {upgradeMessage && <p className="text-red-500">{upgradeMessage}</p>}
             <form className="mt-4" onSubmit={handleSubmit}>
               <div className="mt-4">
                 <label className="block text-sm font-medium">
@@ -165,6 +168,7 @@ function AddNewInterview() {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }

@@ -11,7 +11,7 @@ function Start({ params }) {
   const getDetails = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/mock-interview/${params.interviewId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview/${params.interviewId}`
       );
       const data = await response.json();
       setInfo(data);

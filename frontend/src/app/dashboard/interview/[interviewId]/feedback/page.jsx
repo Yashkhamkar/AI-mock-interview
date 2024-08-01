@@ -11,7 +11,7 @@ function Feedback({ params }) {
   const getUserFeedback = async () => {
     // Fetch user feedback from the backend
     const response = await fetch(
-      `http://localhost:5000/user/user-answer?mockId=${params.interviewId}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/user-answer?mockId=${params.interviewId}`
     );
     const data = await response.json();
     console.log(data);
