@@ -14,6 +14,10 @@ const Upgrade = () => {
 
   const handleUpgrade = async () => {
     setLoading(true);
+    if (!user) {
+      toast.error("Please sign in to upgrade your account.");
+      setLoading(false);
+    }
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/upgrade`,
