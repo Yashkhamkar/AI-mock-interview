@@ -1,26 +1,59 @@
 "use client";
 import React, { useState } from "react";
 import Header from "../Header";
+import axios from "axios";
 import "./style.css";
+import { useUser } from "@clerk/nextjs";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Upgrade = () => {
-  const [isMonthly, setIsMonthly] = useState(true); // State to track if monthly or annual is selected
+  const [isMonthly, setIsMonthly] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser();
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/upgrade`,
+        {
+          email: user.primaryEmailAddress?.emailAddress,
+          amount: isMonthly ? 5 : 40,
+        }
+      );
+      if (response.data.paymentLink) {
+        window.location.href = response.data.paymentLink;
+      } else {
+        toast.error("Failed to initiate payment. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error initiating payment:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <Header />
       <div className="flex flex-col items-center min-h-screen p-6">
-        {/* Title and Subtitle */}
+        <ToastContainer />
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-[#2B2B2F]">Upgrade</h1>
           <p className="text-lg text-[#5F5D6B] mt-2">
             Upgrade to monthly plan to access unlimited mock interview
           </p>
         </div>
-
-        {/* Modal Box */}
         <div className="modal w-full max-w-[450px] bg-gradient-to-b from-[#DCF9E0] to-[#FFFFFF] shadow-lg rounded-lg p-6">
-          <form className="form flex flex-col gap-4">
+          <form
+            className="form flex flex-col gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUpgrade();
+            }}
+          >
             <div className="banner bg-cover bg-center h-8"></div>
             <label className="title font-bold text-lg text-center text-[#2B2B2F]">
               Elevate Your Interview Skills
@@ -108,8 +141,12 @@ const Upgrade = () => {
                   /{isMonthly ? "mo" : "yr"}
                 </sub>
               </label>
-              <button className="upgrade-btn flex items-center justify-center w-[215px] h-10 bg-green-600 text-white font-semibold rounded-md transition-all hover:bg-green-700">
-                Upgrade to PRO
+              <button
+                type="submit"
+                className="upgrade-btn flex items-center justify-center w-[215px] h-10 bg-green-600 text-white font-semibold rounded-md transition-all hover:bg-green-700"
+                disabled={loading}
+              >
+                {loading ? "Processing..." : "Upgrade to PRO"}
               </button>
             </div>
           </form>

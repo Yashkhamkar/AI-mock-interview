@@ -19,7 +19,7 @@ function AddNewInterview() {
 
   const checkUserStatus = async () => {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user-status?email=${user.primaryEmailAddress.emailAddress}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/payment/user-status?email=${user.primaryEmailAddress.emailAddress}`
     );
     const data = await response.json();
     return data;
@@ -28,12 +28,25 @@ function AddNewInterview() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userStatus = await checkUserStatus();
+    const currentDate = new Date();
 
     if (
       userStatus.subscriptionStatus === "free" &&
       userStatus.interviewCount >= 3
     ) {
       toast.error("Please upgrade to premium to create a new interview");
+      setDialogOpen(false);
+      return;
+    }
+
+    if (
+      (userStatus.subscriptionStatus === "monthly" ||
+        userStatus.subscriptionStatus === "yearly") &&
+      new Date(userStatus.subscriptionExpiration) <= currentDate
+    ) {
+      toast.error(
+        "Your subscription has expired. Please renew to create a new interview"
+      );
       setDialogOpen(false);
       return;
     }
