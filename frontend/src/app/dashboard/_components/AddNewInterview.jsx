@@ -57,30 +57,30 @@ function AddNewInterview() {
     setDialogOpen(false); // Close the dialog
     setLoading(true); // Show the loader
 
-    const inputPrompt = `Job position: ${jobPosition}, Job Description: ${jobDescription}, Years of Experience: ${yearsOfExperience}, Depends on Job Position, Job Description and Years of Experience give us 5 Interview question along with Answer in JSON format, Give us question and Answer field on JSON,Each question and answer should be in the format:
-    {
-      "question": "Your question here",
-      "answer": "Your answer here"
-    }`;
-    const result = await chatSession.sendMessage(inputPrompt);
-    const responseText = result.response.text();
-    const jsonMatch = responseText.match(/\[.*?\]/s);
-    if (!jsonMatch) {
-      throw new Error("No valid JSON array found in the response");
-    }
+    const inputPrompt = `Job position: ${jobPosition}, Job Description: ${jobDescription}, Years of Experience: ${yearsOfExperience}, Depends on Job Position, Job Description and Years of Experience give us 5 Interview question along with Answer in JSON format, Give us question and Answer field on JSON, Each question and answer should be in the format:
+      {
+        "question": "Your question here",
+        "answer": "Your answer here"
+      }`;
 
-    const jsonResponsePart = jsonMatch[0];
-    // const MockResp = result.response
-    //   .text()
-    //   .replace("```json", "")
-    //   .replace("```", "");
-    // setJsonResponse(MockResp);
+    try {
+      const result = await chatSession.sendMessage(inputPrompt);
+      const responseText = await result.response.text();
+      console.log("Response Text: ", responseText);
 
-    if (jsonResponsePart) {
-      try {
+      const jsonMatch = responseText.match(/\[.*?\]/s);
+      if (!jsonMatch) {
+        throw new Error("No valid JSON array found in the response");
+      }
+
+      const jsonResponsePart = jsonMatch[0];
+      console.log("JSON Response Part: ", jsonResponsePart);
+
+      if (jsonResponsePart) {
         const mockResponse = JSON.parse(jsonResponsePart.trim());
         const jsonString = JSON.stringify(mockResponse);
-        console.log(jsonString);
+        console.log("JSON String: ", jsonString);
+
         const resp = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview`,
           {
@@ -97,13 +97,16 @@ function AddNewInterview() {
             }),
           }
         );
+
         const data = await resp.json();
+        console.log("Response Data: ", data);
         router.push(`/dashboard/interview/${data.mockId}`);
-      } catch (error) {
-        console.error("Error in inserting", error);
+      } else {
+        console.error("Error in response");
       }
-    } else {
-      console.error("Error in response");
+    } catch (error) {
+      console.error("Error in inserting", error);
+      toast.error("An error occurred while processing the request");
     }
 
     setJobDescription("");
