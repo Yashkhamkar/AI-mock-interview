@@ -9,33 +9,24 @@ function Start({ params }) {
   const [info, setInfo] = useState([]);
   const [ActiveQuestion, setActiveQuestion] = useState(0);
 
-  const getDetails = async () => {
+  const GetInterviewDetails = async () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview/${params.interviewId}`
       );
-      const data = await response.json();
-      setInfo(data);
-
-      let questions = [];
-      if (data.jsonMockResp) {
-        questions =
-          typeof data.jsonMockResp === "string"
-            ? JSON.parse(data.jsonMockResp)
-            : data.jsonMockResp;
-      }
-
-      setInterviewData(questions);
-      if (InterviewData === undefined) {
-        return toast.error("Error while creating interview, Please try again");
-      }
+      const result = await response.json();
+      const jsonMockResp = JSON.parse(result.jsonMockResp);
+      console.log(jsonMockResp);
+      setInterviewData(jsonMockResp);
+      setInfo(result);
     } catch (error) {
       console.error(error);
+      toast.error("Error while fetching interview details");
     }
   };
 
   useEffect(() => {
-    getDetails();
+    GetInterviewDetails();
   }, [params.interviewId]);
 
   return (

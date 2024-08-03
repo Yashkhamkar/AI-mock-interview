@@ -57,17 +57,30 @@ function AddNewInterview() {
     setDialogOpen(false); // Close the dialog
     setLoading(true); // Show the loader
 
-    const inputPrompt = `job title: ${jobPosition} , job description: ${jobDescription} job experience:${yearsOfExperience} from this information give me 5 interview question ranginging from easy to hard give their answers aswell in json format,give question and answer as field in json just give json dont add anything extra\n`;
+    const inputPrompt = `Job position: ${jobPosition}, Job Description: ${jobDescription}, Years of Experience: ${yearsOfExperience}, Depends on Job Position, Job Description and Years of Experience give us 5 Interview question along with Answer in JSON format, Give us question and Answer field on JSON,Each question and answer should be in the format:
+    {
+      "question": "Your question here",
+      "answer": "Your answer here"
+    }`;
     const result = await chatSession.sendMessage(inputPrompt);
-    const MockResp = result.response
-      .text()
-      .replace("```json", "")
-      .replace("```", "")
-      .replace("```", "");
-    setJsonResponse(MockResp);
+    const responseText = result.response.text();
+    const jsonMatch = responseText.match(/\[.*?\]/s);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON array found in the response");
+    }
 
-    if (MockResp) {
+    const jsonResponsePart = jsonMatch[0];
+    // const MockResp = result.response
+    //   .text()
+    //   .replace("```json", "")
+    //   .replace("```", "");
+    // setJsonResponse(MockResp);
+
+    if (jsonResponsePart) {
       try {
+        const mockResponse = JSON.parse(jsonResponsePart.trim());
+        const jsonString = JSON.stringify(mockResponse);
+        console.log(jsonString);
         const resp = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview`,
           {
@@ -76,7 +89,7 @@ function AddNewInterview() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              jsonMockResp: MockResp,
+              jsonMockResp: jsonString,
               jobPosition,
               jobDescription,
               jobExperience: yearsOfExperience,
