@@ -29,6 +29,9 @@ function AddNewInterview() {
     e.preventDefault();
     const userStatus = await checkUserStatus();
     const currentDate = new Date();
+    if (userStatus.subscriptionStatus == undefined) {
+      userStatus.subscriptionStatus = "free";
+    }
 
     if (
       userStatus.subscriptionStatus === "free" &&

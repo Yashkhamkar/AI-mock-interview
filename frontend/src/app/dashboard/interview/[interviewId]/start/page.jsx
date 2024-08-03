@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Questions from "./_components/Questions";
 import RecordAnswer from "./_components/RecordAnswer";
+import { toast } from "react-toastify";
 
 function Start({ params }) {
   const [InterviewData, setInterviewData] = useState([]);
@@ -9,6 +10,9 @@ function Start({ params }) {
   const [ActiveQuestion, setActiveQuestion] = useState(0);
 
   const getDetails = async () => {
+    if (params.interviewId === undefined) {
+      toast.error("Error while creating interview, Please try again");
+    }
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview/${params.interviewId}`

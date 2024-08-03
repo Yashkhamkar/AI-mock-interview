@@ -3,11 +3,6 @@ import { Lightbulb, Volume2 } from "lucide-react";
 import React, { useEffect } from "react";
 
 function Questions({ mockQuestions, activeQuestion, setActiveQuestion }) {
-  useEffect(() => {
-    console.log(mockQuestions);
-    console.log("xxxxxxxxxxxxxxxx");
-    console.log(mockQuestions[activeQuestion]?.question);
-  }, [mockQuestions, activeQuestion]);
 
   const textToSpeech = (text) => {
     const synth = window.speechSynthesis;
