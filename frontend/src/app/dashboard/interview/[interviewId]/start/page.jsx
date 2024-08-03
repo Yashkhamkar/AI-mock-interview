@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Questions from "./_components/Questions";
 import RecordAnswer from "./_components/RecordAnswer";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 function Start({ params }) {
   const [InterviewData, setInterviewData] = useState([]);
@@ -11,7 +11,7 @@ function Start({ params }) {
 
   const getDetails = async () => {
     if (params.interviewId === undefined) {
-      toast.error("Error while creating interview, Please try again");
+      return toast.error("Error while creating interview, Please try again");
     }
     try {
       const response = await fetch(
@@ -52,6 +52,7 @@ function Start({ params }) {
           interviewData={info}
         />
       </div>
+      <ToastContainer />
     </div>
   );
 }
