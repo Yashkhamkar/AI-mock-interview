@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"; // Import useRouter
 import Webcam from "react-webcam";
 import { Lightbulb, WebcamIcon } from "lucide-react";
 import "./interview.css";
+import { toast, ToastContainer } from "react-toastify";
 
 function Interview({ params }) {
   const [webcamEnabled, setWebcamEnabled] = useState(false);
@@ -11,6 +12,9 @@ function Interview({ params }) {
   const router = useRouter(); // Initialize useRouter
 
   const getDetails = async () => {
+    if (params.interviewId === undefined) {
+      return toast.error("Error while creating interview, Please try again");
+    }
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview/${params.interviewId}`
@@ -97,6 +101,7 @@ function Interview({ params }) {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -10,9 +10,6 @@ function Start({ params }) {
   const [ActiveQuestion, setActiveQuestion] = useState(0);
 
   const getDetails = async () => {
-    if (params.interviewId === undefined) {
-      return toast.error("Error while creating interview, Please try again");
-    }
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mock-interview/${params.interviewId}`
@@ -29,6 +26,9 @@ function Start({ params }) {
       }
 
       setInterviewData(questions);
+      if (InterviewData === undefined) {
+        return toast.error("Error while creating interview, Please try again");
+      }
     } catch (error) {
       console.error(error);
     }
