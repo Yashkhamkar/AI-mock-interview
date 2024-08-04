@@ -3,10 +3,12 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import "./feedback.css";
 import Link from "next/link";
-
+import { ToastContainer, Toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 function Feedback({ params }) {
   const [feedbackList, setFeedbackList] = useState([]);
   const [openFeedback, setOpenFeedback] = useState(null);
+  const router = useRouter();
 
   const getUserFeedback = async () => {
     // Fetch user feedback from the backend
@@ -14,6 +16,12 @@ function Feedback({ params }) {
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/user-answer?mockId=${params.interviewId}`
     );
     const data = await response.json();
+    if (data == null || data.length == 0) {
+      router.push("/dashboard");
+      return Toast.error(
+        "There is no feedback available for this interview,please complete the interview first"
+      );
+    }
     console.log(data);
     setFeedbackList(data);
     return data;
@@ -89,6 +97,7 @@ function Feedback({ params }) {
           Go Home
         </button>
       </Link>
+      <ToastContainer />
     </div>
   );
 }
