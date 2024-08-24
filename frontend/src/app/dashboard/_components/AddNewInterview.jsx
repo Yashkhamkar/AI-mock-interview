@@ -13,7 +13,6 @@ function AddNewInterview() {
   const [yearsOfExperience, setYearsOfExperience] = useState("");
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [jsonResponse, setJsonResponse] = useState({});
   const { user } = useUser();
   const router = useRouter();
 
@@ -54,8 +53,8 @@ function AddNewInterview() {
       return;
     }
 
-    setDialogOpen(false); // Close the dialog
-    setLoading(true); // Show the loader
+    setDialogOpen(false);
+    setLoading(true);
 
     const inputPrompt = `Job position: ${jobPosition}, Job Description: ${jobDescription}, Years of Experience: ${yearsOfExperience}, Depends on Job Position, Job Description and Years of Experience give us 5 Interview question along with Answer in JSON format, Give us question and Answer field on JSON, Each question and answer should be in the format:
       {
@@ -68,6 +67,7 @@ function AddNewInterview() {
       const responseText = await result.response.text();
       console.log("Response Text: ", responseText);
 
+      // Attempt to find a JSON array in the response
       const jsonMatch = responseText.match(/\[.*?\]/s);
       if (!jsonMatch) {
         throw new Error("No valid JSON array found in the response");
@@ -76,7 +76,7 @@ function AddNewInterview() {
       const jsonResponsePart = jsonMatch[0];
       console.log("JSON Response Part: ", jsonResponsePart);
 
-      if (jsonResponsePart) {
+      try {
         const mockResponse = JSON.parse(jsonResponsePart.trim());
         const jsonString = JSON.stringify(mockResponse);
         console.log("JSON String: ", jsonString);
@@ -101,12 +101,13 @@ function AddNewInterview() {
         const data = await resp.json();
         console.log("Response Data: ", data);
         router.push(`/dashboard/interview/${data.mockId}`);
-      } else {
-        console.error("Error in response");
+      } catch (jsonError) {
+        console.error("JSON Parsing Error: ", jsonError.message);
+        toast.error("An error occurred while processing the JSON response.");
       }
     } catch (error) {
       console.error("Error in inserting", error);
-      toast.error("An error occurred while processing the request");
+      toast.error("An error occurred while processing the request.");
     }
 
     setJobDescription("");
